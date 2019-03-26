@@ -1,0 +1,125 @@
+<div class="container">
+  <h4 class="text-center">{{title}}</h4>
+  <app-dialog [(visible)]="showDialog">
+    <div class="col-md-12">
+      <app-product></app-product>
+    </div>
+  </app-dialog>
+  <app-dialog [(visible)]="showDialog1">
+      <div class="col-md-12">
+        <app-customer></app-customer>
+      </div>
+    </app-dialog>
+  <form class="form-horizontal" [formGroup]="form" (ngSubmit)="saveProduct()" novalidate>
+    <input type="hidden" formControlName="totalPrice">
+    <div class="row">
+
+      <div class="col">
+        <div class="card border-info mb-3" style="max-width: 100%; ">
+          <div class="card-header">
+            <i class="fas fa-users text-success"></i> Customer
+            <a class="badge badge-purple badge-outlined" (click)="showDialog1 = !showDialog1" style="cursor: pointer;">Add New
+              <i class="fas fa-user-plus text-purple"></i>
+            </a>
+          </div>
+          <div class="card-body text-info">
+            <div class="form-row">
+              <div class="col-md-4">
+                <select class="form-control custom-select" id="customer" formControlName="customer"
+                  (ngModelChange)="getSelectedOptionText($event)">
+                  <option [ngValue]="true">-Customer-</option>
+                  <option *ngFor="let item of customerList" [ngValue]="item">{{item.name}} {{item.lastname}}</option>
+                </select>
+              </div>
+              <div class="col-md-4 ">
+                <span *ngIf="phoneCustomer">
+                  <label><i class="fas fa-phone text-success"></i> Phone:</label>
+                  {{phoneCustomer}}
+                </span></div>
+              <div class="col-md-4">
+                <span *ngIf="addressCustomer">
+                  <label><i class="fas fa-map-marker-alt text-success"></i> Address:</label>
+                  {{addressCustomer}}</span></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6" *ngIf="phoneCustomer">
+        <div class="card border-warning " style="max-width: 100%;">
+          <div class="card-header">
+            <i class="fas fa-shopping-cart text-success"></i> Products & Services
+            <a class="badge badge-purple badge-outlined" (click)="showDialog = !showDialog" style="cursor: pointer;">Add
+              New
+              <i class="fas fa-plus-circle text-purple"></i>
+            </a>
+          </div>
+
+          <div class="card-body text-default ">
+            <div class="row">
+              <a class="d-flex justify-content-md-center align-items-center col-8" style="cursor: pointer;"
+                *ngFor='let product of productList' (click)="addPurchase(product)">
+                <div class="col-sm-1"><i class="fas fa-plus-circle text-info"></i></div>
+                <div class="col-sm-9"><span> {{product.name}}</span></div>
+                <div class="col-sm-2"><span
+                    class="badge badge-primary badge-outlined col-2">{{money(product.price)}}</span></div>
+                <hr style="border-width: 1px 0; color: black">
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="col-sm-6" *ngIf="showDiv ==true">
+        <div class="card border-success " style="max-width: 100%;">
+          <div class="card-header text-primary">
+            <div class="row">
+              <div class="col-sm">
+                <span class="float-left"><i class="fas fa-file-invoice-dollar text-success "></i>
+                  <strong>Total Price
+                    {{money(form.get('totalPrice').value)}}</strong>
+                  </span>
+                </div>
+              <div class="btn-group">
+                <div class="col-sm"><button type="button" (click)="resetPurchase()" class="btn btn-warning"
+                    style="padding-right: 10px">Reset</button></div>
+                <div class="col-sm"> <button type="submit" class="btn btn-success float-right">Submit</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="card-body text-info">
+            <a class="list-group-item list-group-item-action flex-column align-items-start"
+              *ngFor="let purchase of form.controls.purchases.controls; let i=index" formArrayName="purchases">
+              <div [formGroupName]="i">
+                <div class="d-flex w-100 justify-content-between">
+                  <small>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+                      (click)="removePurchase(i)">
+                      <span aria-hidden="true" class="text-danger">×</span>
+                    </button>
+                  </small> &nbsp;
+                  <h5 class="mb-1">{{purchase.get('product').value.name}}</h5>
+                  <small class="text-warning">Price: {{money(purchase.get('product').value.price)}}</small>
+                </div>
+                <p class="mb-1">
+                  <input type="number" formControlName="quantity" class="form-control form-control-sm">
+                </p>
+                <small>
+                  <input type="hidden" formControlName="amount" class="form-control form-control-sm"> Sub-Total
+                  {{money(purchase.get('amount').value)}}
+                </small>
+              </div>
+            </a>
+          </div>
+          <div class="card-header text-primary">
+            <strong><i class="fas fa-file-invoice-dollar text-success"></i> Total Price
+              {{money(form.get('totalPrice').value)}}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

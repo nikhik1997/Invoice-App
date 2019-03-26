@@ -1,0 +1,40 @@
+#.travis.yml
+
+language: node_js
+node_js:
+  - "8.9.3"
+
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+
+cache:
+  directories:
+     - ./node_modules      
+
+branches:
+  only:
+    - master
+
+before_script:
+  - npm install -g firebase-tools
+  - npm install -g @angular/cli
+
+install:
+  - npm install  
+
+script:
+  - npm run test -- --no-watch --no-progress --browsers=ChromeHeadlessCI
+  - npm run e2e -- --protractor-config=e2e/protractor-ci.conf.js
+  - ng build --prod
+
+after_success:
+  - firebase deploy --token $FIREBASE_TOKEN
+
+notifications:
+  email:
+    on_failure: change
+    on_success: change

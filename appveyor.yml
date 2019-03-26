@@ -1,0 +1,24 @@
+image: Visual Studio 2017
+
+environment:
+  nodejs_version: "8.9.3"
+
+platform:
+  - x64
+
+install:
+  - ps: Install-Product node $env:nodejs_version
+  - yarn install --no-progress
+
+test_script:
+  - node --version
+  - yarn --version
+  - yarn test
+  - appveyor-e2e.bat
+
+build: off
+deploy: off
+
+cache:
+  - node_modules -> yarn.lock
+  - "%LOCALAPPDATA%\\Yarn"

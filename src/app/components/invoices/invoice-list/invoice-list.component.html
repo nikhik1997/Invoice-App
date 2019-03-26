@@ -1,0 +1,195 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 text-center" *ngIf="showDiv ==true">
+      <div class="card mt-5" style="min-width: 670px;">
+        <div class="card-body">
+          <h6 class="text-center">List of Invoices </h6>
+            <button (click)="showDialog = !showDialog" class="btn btn-outline-warning text-warning"><i class="fas fa-plus-circle"></i></button>
+            <app-dialog [(visible)]="showDialog">
+              <div class="card mt-5">
+                <div class="card-body">
+                  <div class="col-md-12">
+                    <app-invoice></app-invoice>
+                  </div>
+                </div>
+              </div>
+            </app-dialog>
+
+          <form class="form-inline" style="padding-bottom: 10px">
+            <input class="form-control" name="searchInput" placeholder="Search by name" #searchInput="ngModel"
+              [(ngModel)]="searchText" style="width: 40%;">
+            <button class="btn btn-outline-primary" (click)="searchText=''">X</button>
+          </form>
+          <div class="row">
+            <div class="col-sm">
+              <table class="table table-sm table-hover table-bordered ">
+                <thead class="thead-light">
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Vendor</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Purchases</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <ng-container *ngFor="let invoice of pagedItems">
+                    <tr *ngIf="filterCondition(invoice)">
+                      <td>{{invoice.customer.name}} {{invoice.customer.lastname}}</td>
+                      <td>{{invoice.totalPrice | currency:'USD':'symbol'}}</td>
+                      <td>{{invoice.uid}}</td>
+                      <td>{{invoice.createdAt}}</td>
+                      <td>
+                        <li class="list-group-item" *ngFor="let purchase of invoice.purchases">
+                          {{purchase.product.name}}
+                        </li>
+                      </td>
+                      <td class="btn-group m-1">
+                        <a class="btn btn-primary text-white" (click)="onEdit(invoice)">
+                          <i class="far fa-edit"></i></a>
+                        <a class="btn btn-danger text-white" (click)="onDelete(invoice.$key)">
+                          <i class="fas fa-trash-alt"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-sm">
+              <ul *ngIf="pager.pages && pager.pages.length" class="pagination">
+                <li [ngClass]="{'page-item disabled':pager.currentPage === 1}">
+                  <a class="page-link" (click)="setPage(1)">First</a>
+                </li>
+                <li [ngClass]="{'page-item disabled':pager.currentPage === 1}">
+                  <a class="page-link" (click)="setPage(pager.currentPage - 1)">Previous</a>
+                </li>
+                <li *ngFor="let page of pager.pages" [ngClass]="{'page-item active':pager.currentPage === page}">
+                  <a class="page-link" (click)="setPage(page)">{{page}}</a>
+                </li>
+                <li [ngClass]="{'page-item disabled':pager.currentPage === pager.totalPages}">
+                  <a class="page-link" (click)="setPage(pager.currentPage + 1)">Next</a>
+                </li>
+                <li [ngClass]="{'page-item disabled':pager.currentPage === pager.totalPages}">
+                  <a class="page-link" (click)="setPage(pager.totalPages)">Last</a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="alert alert-danger" *ngIf="showDeletedMessage">
+            Deleted successfully.
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="col-md-12 text-center" *ngIf="showEdit ==true">
+      <div class="card mt-5">
+        <div class="card-body">
+          <small>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="removeDiv()">
+              <span aria-hidden="true" class="text-danger">×</span>
+            </button>
+          </small>
+          <h6 class="text-center">Invoice
+            <a class="btn btn-outline-info text-success" (click)="removeDiv()"><i class="fas fa-list"></i> </a>
+          </h6>
+          <div class="alert alert-success" *ngIf="showUpdatedMessage">
+            Updated successfully. New Total Price {{money(this.form.get('totalPrice').value)}}
+          </div>
+          <form class="form-horizontal" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+            <input type="hidden" formControlName="$key" class="form-control form-control-sm">
+            <div formGroupName="customer">
+              <h3>Customer</h3>
+              <div class="form-row">
+                <div class="form-group col-md-3">
+                  <label>Name:
+                    <input class="form-control" type="text" formControlName="name" readonly>
+                  </label>
+                </div>
+                <div class="form-group col-md-3">
+                  <label>Last Name:
+                    <input class="form-control" type="text" formControlName="lastname" readonly>
+                  </label>
+                </div>
+                <div class="form-group col-md-3">
+                  <label>Phone:
+                    <input class="form-control" type="text" formControlName="phone" readonly>
+                  </label>
+                </div>
+                <div class="form-group col-md-3">
+                  <label>Address:
+                    <input class="form-control" type="text" formControlName="address" readonly>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-12">
+                <label>Create:
+                  <input class="form-control" type="text" formControlName="createdAt" readonly>
+                </label>
+              </div>
+            </div>
+            <hr>
+            <div class="form-row">
+              <div class="form-group col-md-12">
+                <div formArrayName="purchases"> <strong>
+                    <button type="submit" class="btn btn-success float-right">Submit</button>
+                    <i class="fas fa-file-invoice-dollar text-success"></i> Total Price
+                    {{money(this.form.get('totalPrice').value)}}</strong>
+                  <div *ngFor="let product of form.controls.purchases.controls; let i = index" [formGroupName]="i">
+
+                    <div formGroupName="product">
+                      <div class="d-flex w-100 justify-content-between">
+                        <small>
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close" (click)="removePurchase(i)">
+                            <span aria-hidden="true" class="text-danger">×</span>
+                          </button>
+                        </small>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-4">
+                          <label>Name:
+                            <input formControlName="name" class="form-control" readonly />
+                          </label>
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Price:
+                            <input formControlName="price" class="form-control" type="number" readonly />
+                          </label>
+                        </div>
+                        <div class="form-group col-md-4">
+                          <label>Amount:
+                            <input type="text" class="form-control" readonly value="{{money(product.get('product').value.price*product.value.quantity)}}">
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="form-group col-md-4">
+                      <label>Quantity:
+                        <input formControlName="quantity" class="form-control" type="number" />
+                      </label>
+                    </div>
+                    <hr>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <div class="alert alert-success" *ngIf="showUpdatedMessage">
+            Updated successfully. New Total Price {{money(this.form.get('totalPrice').value)}}
+          </div>
+          <!-- <pre style="text-align: left">{{form.value | json}}</pre>	-->
+
+        </div>
+      </div>
+    </div>
+
+ 
+  </div>
+</div>

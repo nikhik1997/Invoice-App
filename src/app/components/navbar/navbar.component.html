@@ -1,0 +1,41 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Invoice Application</a>&nbsp;
+  <h6 *ngIf = "(user | async)" class="text-success"><i class="fas fa-user-tie text-success">&nbsp;{{(user | async)?.email}}</i> </h6>&nbsp;
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <!-- {{ user$ | async | json}} -->
+    <ul class="navbar-nav mr-auto">
+        <li class="nav-item dropdown" *ngIf = "isLoggedId">
+            <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Resources
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <!-- <a class="dropdown-item" [routerLink]="['/home']" routerLinkActive="active">Home</a>-->
+              <a class="dropdown-item" [routerLink]="['/products']" routerLinkActive="active">Products</a>
+              <a class="dropdown-item" [routerLink]="['/categories']" routerLinkActive="active">Categories </a>
+              <a class="dropdown-item" [routerLink]="['/customers']" routerLinkActive="active">Customers </a>
+              <a class="dropdown-item" [routerLink]="['/invoices']" routerLinkActive="active">Add Invoice </a>
+            </div>
+          </li>
+     
+      <li class="nav-item" *ngIf = "isLoggedId">
+        <a class="nav-link badge1" [attr.data-badge]="invoicelenght"  [routerLink]="['/invoices-list']" routerLinkActive="active">List Invoices</a>
+      </li>
+    </ul>
+    <ul class="navbar-nav">
+
+      <li class="nav-item float-right" *ngIf = "!isLoggedId">
+        <a class="nav-link" [routerLink]="['/ilogin']" class="btn btn-primary"   routerLinkActive="active">Login </a>       
+      </li>
+      <li class="nav-item float-right" *ngIf = "isLoggedId">
+        <a class="nav-link" class="btn btn-warning" (click) = "logout()"  routerLinkActive="active">Logout </a> 
+      </li>
+    </ul>
+  </div>
+
+ 
+ 
+</nav>
+
